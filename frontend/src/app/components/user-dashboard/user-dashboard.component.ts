@@ -219,8 +219,13 @@ export class UserDashboardComponent implements OnInit {
 
   updateStatus(task: Task, status: string): void {
     this.taskService.updateStatus(task._id!, status).subscribe({
-      next: () => {
+      next: (updatedTask) => {
         this.toastr.success(`Status updated to ${status}`);
+        // Refresh the open detail modal immediately without waiting for loadTasks()
+        if (this.selectedTask?._id === updatedTask._id) {
+          this.selectedTask = updatedTask;
+          this.cdr.detectChanges();
+        }
         this.loadTasks();
       },
       error: () => this.toastr.error('Failed to update status')
