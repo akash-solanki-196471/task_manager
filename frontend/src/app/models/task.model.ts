@@ -23,7 +23,7 @@ export interface Task {
   title: string;
   description?: string;
   priority: 'low' | 'medium' | 'high';
-  status: 'Pending' | 'In Progress' | 'Sent Back' | 'Waiting for Approval' | 'Approved' | 'Done' | 'Scheduled';
+  status: 'Pending' | 'In Progress' | 'Sent Back' | 'Reverted' | 'Waiting for Approval' | 'Approved' | 'Done' | 'Scheduled';
   createdBy: {
     _id: string;
     username: string;
