@@ -42,7 +42,7 @@ jobs:
       # Sync hashed assets with long-lived cache, index.html with no-cache
       - name: Sync to S3 (hashed assets)
         run: |
-          aws s3 sync frontend/dist/task-manager-frontend/browser/ \
+          aws s3 sync frontend/dist/task-manager-frontend/ \
             s3://${{ secrets.S3_BUCKET_NAME }} \
             --delete \
             --exclude "index.html" \
@@ -50,7 +50,7 @@ jobs:
 
       - name: Sync to S3 (index.html — no cache)
         run: |
-          aws s3 cp frontend/dist/task-manager-frontend/browser/index.html \
+          aws s3 cp frontend/dist/task-manager-frontend/index.html \
             s3://${{ secrets.S3_BUCKET_NAME }}/index.html \
             --cache-control "no-cache, no-store, must-revalidate"
 
