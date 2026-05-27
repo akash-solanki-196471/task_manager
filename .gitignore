@@ -21,3 +21,16 @@ Thumbs.db
 # IDE
 .vscode/
 .idea/
+
+# AWS / SSH keys — never commit these
+*.pem
+*.ppk
+
+# Deployment-specific env overrides
+.env.production
+.env.staging
+
+# Azure leftovers (migrated to AWS)
+.ebextensions/
+.deployment
+deploy.cmd

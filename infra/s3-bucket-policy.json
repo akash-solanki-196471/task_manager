@@ -1,0 +1,26 @@
+{
+  "_comment": "S3 bucket policy granting CloudFront OAC read access to the Angular SPA bucket.",
+  "_instructions": [
+    "1. Create your CloudFront distribution first (needs OAC ARN).",
+    "2. Replace BUCKET_NAME with your actual S3 bucket name.",
+    "3. Replace CLOUDFRONT_OAC_ARN with the OAC ARN from your CloudFront distribution.",
+    "4. Apply via CLI: aws s3api put-bucket-policy --bucket BUCKET_NAME --policy file://infra/s3-bucket-policy.json"
+  ],
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AllowCloudFrontOACReadOnly",
+      "Effect": "Allow",
+      "Principal": {
+        "Service": "cloudfront.amazonaws.com"
+      },
+      "Action": "s3:GetObject",
+      "Resource": "arn:aws:s3:::BUCKET_NAME/*",
+      "Condition": {
+        "StringEquals": {
+          "AWS:SourceArn": "CLOUDFRONT_DISTRIBUTION_ARN"
+        }
+      }
+    }
+  ]
+}
