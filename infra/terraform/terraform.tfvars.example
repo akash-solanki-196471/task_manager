@@ -1,0 +1,18 @@
+# Copy this file to terraform.tfvars and fill in real values.
+# terraform.tfvars is gitignored — NEVER commit it.
+
+aws_region        = "us-east-1"
+environment       = "production"
+app_name          = "task-manager"
+ec2_instance_type = "t3.small"
+
+# Restrict SSH to your IP for security. Find your IP at https://checkip.amazonaws.com
+# Example: "203.0.113.42/32"
+ec2_ssh_allowed_cidr = "0.0.0.0/0"
+
+# MongoDB Atlas — create free M0 cluster at https://cloud.mongodb.com
+# Connection string format: mongodb+srv://<user>:<password>@<cluster>.mongodb.net/taskmanager?retryWrites=true&w=majority
+mongodb_uri = "mongodb+srv://USERNAME:PASSWORD@CLUSTER.mongodb.net/taskmanager?retryWrites=true&w=majority"
+
+# Generate a strong secret: openssl rand -base64 48
+jwt_secret = "CHANGE-THIS-TO-A-LONG-RANDOM-SECRET-AT-LEAST-32-CHARS"
