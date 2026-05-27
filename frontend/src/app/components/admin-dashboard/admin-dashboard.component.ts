@@ -45,7 +45,6 @@ export class AdminDashboardComponent implements OnInit {
   stats = {
     totalUsers: 0,
     totalTasks: 0,
-    pendingApprovals: 0,
     revertedTasks: 0,
     overdueTasks: 0,
     completedTasks: 0
@@ -112,8 +111,7 @@ export class AdminDashboardComponent implements OnInit {
   calculateStats(): void {
     const now = new Date();
     this.stats.totalTasks = this.tasks.length;
-    this.stats.pendingApprovals = this.tasks.filter(t => t.status === 'Waiting for Approval').length;
-    this.stats.revertedTasks = this.tasks.filter(t => t.status === 'Sent Back').length;
+    this.stats.revertedTasks = this.tasks.filter(t => t.status === 'Reverted').length;
     this.stats.completedTasks = this.tasks.filter(t => t.status === 'Approved' || t.status === 'Done').length;
     this.stats.overdueTasks = this.tasks.filter(t => t.dueAt && new Date(t.dueAt) < now && t.status !== 'Approved' && t.status !== 'Done').length;
   }
@@ -142,8 +140,7 @@ export class AdminDashboardComponent implements OnInit {
 
       if (this.activeTab !== 'all') {
         if (this.activeTab === 'pending') matchesStatus = task.status === 'Pending';
-        if (this.activeTab === 'approval') matchesStatus = task.status === 'Waiting for Approval';
-        if (this.activeTab === 'reverted') matchesStatus = task.status === 'Sent Back';
+        if (this.activeTab === 'reverted') matchesStatus = task.status === 'Reverted';
         if (this.activeTab === 'completed') matchesStatus = task.status === 'Approved' || task.status === 'Done';
       }
 
@@ -363,8 +360,7 @@ export class AdminDashboardComponent implements OnInit {
     switch (status) {
       case 'Pending': return 'bg-secondary';
       case 'In Progress': return 'bg-primary';
-      case 'Sent Back': return 'bg-warning text-dark';
-      case 'Waiting for Approval': return 'bg-info';
+      case 'Reverted': return 'bg-warning text-dark';
       case 'Approved': return 'bg-success';
       case 'Done': return 'bg-success';
       case 'Scheduled': return 'bg-dark';

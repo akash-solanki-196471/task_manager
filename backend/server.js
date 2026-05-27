@@ -5,7 +5,7 @@ const dotenv = require('dotenv');
 const path = require('path');
 
 // Load environment variables
-dotenv.config();
+dotenv.config({ path: path.join(__dirname, '.env') });
 
 const app = express();
 
@@ -21,15 +21,8 @@ app.use((req, res, next) => {
 });
 
 // MongoDB Connection
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/taskmanager', {
-  useNewUrlParser: true,
-  useUnifiedTopology: true,
-})
-.then(() => console.log('✅ MongoDB Connected Successfully'))
-.catch(err => {
-  console.error('❌ MongoDB Connection Error:', err);
-  process.exit(1);
-});
+const connectDB = require('./config/db');
+connectDB();
 
 // Import Models
 require('./models/User');
@@ -50,7 +43,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes);
 
 // Health check route
-app.get('/health', (req, res) => {
+app.get('/api/health', (req, res) => {
   res.json({ 
     status: 'OK', 
     message: 'Server is running',

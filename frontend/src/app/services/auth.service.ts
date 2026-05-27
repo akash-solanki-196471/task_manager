@@ -18,6 +18,10 @@ export class AuthService {
     this.loadStoredUser();
   }
 
+  checkHealth(): Observable<any> {
+    return this.http.get('/api/health');
+  }
+
   private loadStoredUser(): void {
     try {
       const userStr = localStorage.getItem('user');

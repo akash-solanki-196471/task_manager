@@ -1,6 +1,6 @@
 <div class="dashboard-wrapper">
   <!-- Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark glass-nav">
+  <nav class="navbar navbar-expand-lg navbar-light glass-nav">
     <div class="container-fluid">
       <a class="navbar-brand animate-fade-in" href="#">
         <i class="bi bi-person-workspace me-2"></i>Employee Dashboard
@@ -53,16 +53,18 @@
 
     <!-- Main Content -->
     <div class="glass-card animate-slide-up" style="animation-delay: 0.2s;">
-      <div class="card-header-glass">
+      <div class="card-header-glass flex-column align-items-stretch gap-3">
         <div class="tabs-scroll scroll-custom">
           <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">Today's Tasks</button>
           <button class="tab-btn" [class.active]="activeTab === 'in-progress'" (click)="setTab('in-progress')">In Progress</button>
-          <button class="tab-btn" [class.active]="activeTab === 'approval'" (click)="setTab('approval')">Waiting Approval</button>
           <button class="tab-btn" [class.active]="activeTab === 'scheduled'" (click)="setTab('scheduled')">Scheduled</button>
           <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">Done</button>
+          <button class="tab-btn" [class.active]="activeTab === 'personal'" (click)="setTab('personal')">
+            <i class="bi bi-person-check me-1"></i>My Personal To-Do
+          </button>
         </div>
-        <div class="d-flex align-items-center gap-3">
-          <div class="search-box">
+        <div class="d-flex align-items-center justify-content-between gap-3 mt-1" *ngIf="activeTab !== 'personal'">
+          <div class="search-box flex-grow-1" style="max-width: 400px;">
             <i class="bi bi-search"></i>
             <input type="text" placeholder="Search my tasks..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
           </div>
@@ -73,32 +75,139 @@
       </div>
 
       <div class="card-body">
-        <div class="row g-4">
-          <div class="col-12 col-md-6 col-lg-4" *ngFor="let task of filteredTasks">
-            <div class="task-glass-card" [class]="task.priority" (click)="openDetailModal(task)">
-              <div class="task-header">
-                <span class="badge status-badge-glass" [ngClass]="getStatusClass(task.status)">{{ task.status }}</span>
-                <span class="priority-label">{{ task.priority | uppercase }}</span>
-              </div>
-              <h5 class="task-title">{{ task.title }}</h5>
-              <p class="task-desc">{{ task.description | slice:0:80 }}{{ task.description && task.description.length > 80 ? '...' : '' }}</p>
-              
-              <div class="task-footer">
-                <div class="date" *ngIf="task.dueAt">
-                  <i class="bi bi-calendar-event me-1"></i> {{ task.dueAt | date:'MMM d' }}
-                </div>
-                <div class="comments-count" *ngIf="task.comments?.length">
-                  <i class="bi bi-chat-dots me-1"></i> {{ task.comments?.length }}
-                </div>
+        <!-- Tasks Table -->
+        <div class="table-responsive scroll-custom" *ngIf="activeTab !== 'personal'">
+          <table class="table glass-table">
+            <thead>
+              <tr>
+                <th>Task Details</th>
+                <th>Assigned To</th>
+                <th>Priority</th>
+                <th>Status</th>
+                <th>Deadline</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let task of filteredTasks">
+                <td>
+                  <div class="task-title fw-bold">{{ task.title }}</div>
+                  <div class="task-desc-short text-muted small">{{ task.description | slice:0:40 }}{{ task.description && task.description.length > 40 ? '...' : '' }}</div>
+                </td>
+                <td>
+                  <div class="d-flex align-items-center" *ngIf="task.assignedTo">
+                    <img src="https://ui-avatars.com/api/?name={{ task.assignedTo.username }}&background=random" class="rounded-circle me-2" width="24">
+                    <span>{{ task.assignedTo.username }}</span>
+                  </div>
+                  <span class="text-muted" *ngIf="!task.assignedTo">Unassigned</span>
+                </td>
+                <td>
+                  <span class="priority-dot" [ngClass]="task.priority"></span>
+                  {{ task.priority | titlecase }}
+                </td>
+                <td>
+                  <span class="badge status-badge-glass" [ngClass]="getStatusClass(task.status)">
+                    {{ task.status }}
+                  </span>
+                </td>
+                <td>
+                  <div class="date-cell" [class.overdue]="task.status !== 'Approved' && task.status !== 'Done' && task.dueAt && (task.dueAt.toString() < today.toISOString())">
+                    {{ task.dueAt ? (task.dueAt | date:'MMM d, h:mm a') : 'No date' }}
+                  </div>
+                </td>
+                <td>
+                  <div class="btn-group">
+                    <button class="btn btn-table-icon text-info" (click)="openDetailModal(task)" title="View Details"><i class="bi bi-chat-left-text"></i></button>
+                    <button class="btn btn-table-icon text-primary" (click)="openEditTaskModal(task)" title="Edit Task"><i class="bi bi-pencil"></i></button>
+                    <button class="btn btn-table-icon text-danger" (click)="deleteTask(task._id!)" title="Delete Task"><i class="bi bi-trash3"></i></button>
+                  </div>
+                </td>
+              </tr>
+              <tr *ngIf="!filteredTasks.length">
+                <td colspan="6" class="text-center py-5">
+                  <i class="bi bi-inbox fs-1 d-block mb-2 text-muted opacity-50"></i>
+                  No tasks matching filters
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Personal Todo View -->
+        <div *ngIf="activeTab === 'personal'" class="personal-todo-container py-3 animate-slide-up">
+          <div class="row">
+            <div class="col-lg-5 col-md-6 mx-auto mb-4">
+              <div class="glass-card p-4 shadow-sm" style="background: rgba(255, 255, 255, 0.95); border: 1px solid rgba(79, 70, 229, 0.15);">
+                <h5 class="fw-bold mb-3 text-primary d-flex align-items-center">
+                  <i class="bi bi-person-check-fill me-2"></i>Personal To-Do List
+                </h5>
+                <p class="text-muted small mb-4">
+                  Keep a list of your private checklists here. Since these items are stored privately, 
+                  <strong>Admin has no right to view or manage them!</strong>
+                </p>
+                <form (submit)="addPersonalTodo(); $event.preventDefault()">
+                  <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase">To-Do Item</label>
+                    <input type="text" [(ngModel)]="newTodoText" name="newTodoText" class="form-control" placeholder="e.g. Bring home some coffee beans" required>
+                  </div>
+                  <div class="mb-3">
+                    <label class="form-label fw-bold small text-uppercase">Priority</label>
+                    <select [(ngModel)]="newTodoPriority" name="newTodoPriority" class="form-select glass-input">
+                      <option value="low">🟢 Low Priority</option>
+                      <option value="medium">🟡 Medium Priority</option>
+                      <option value="high">🔴 High Priority</option>
+                    </select>
+                  </div>
+                  <button type="submit" class="btn btn-primary-glass w-100" [disabled]="!newTodoText.trim()">
+                    <i class="bi bi-plus-lg me-1"></i>Add To-Do Item
+                  </button>
+                </form>
               </div>
             </div>
-          </div>
-          
-          <div *ngIf="!filteredTasks.length" class="text-center py-5 w-100">
-            <div class="opacity-50">
-              <i class="bi bi-inbox fs-1"></i>
-              <p class="mt-2 fw-semibold" *ngIf="!tasks.length">No tasks yet — your owner will assign tasks here.</p>
-              <p class="mt-2" *ngIf="tasks.length">No tasks match this filter.</p>
+
+            <div class="col-lg-7 col-md-6">
+              <div class="glass-card p-4 h-100 shadow-sm" style="background: rgba(255, 255, 255, 0.9);">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                  <h6 class="mb-0 fw-bold text-uppercase letter-spacing-1 text-secondary">
+                    <i class="bi bi-card-checklist me-2 text-primary"></i>My Checklist
+                  </h6>
+                  <span class="badge bg-secondary rounded-pill px-3">{{ personalTodos.length }} Items</span>
+                </div>
+                
+                <div class="todo-list-scroll scroll-custom pr-2" style="max-height: 400px; overflow-y: auto;">
+                  <div *ngFor="let todo of personalTodos" class="todo-list-item d-flex align-items-center justify-content-between p-3 mb-2 rounded border transition" 
+                       [style.background]="todo.completed ? 'rgba(241, 245, 249, 0.6)' : '#ffffff'" 
+                       [style.border-color]="todo.completed ? '#cbd5e1' : 'rgba(15, 23, 42, 0.08)'"
+                       style="transition: all 0.25s ease;">
+                    <div class="d-flex align-items-center flex-grow-1">
+                      <div class="form-check me-3">
+                        <input type="checkbox" class="form-check-input cursor-pointer" [checked]="todo.completed" (change)="togglePersonalTodo(todo)" style="width: 20px; height: 20px; border-radius: 6px;">
+                      </div>
+                      <div class="todo-text flex-grow-1" [style.text-decoration]="todo.completed ? 'line-through' : 'none'" [style.color]="todo.completed ? '#64748b' : '#0f172a'" style="font-weight: 500;">
+                        {{ todo.text }}
+                      </div>
+                      <span class="badge me-3" 
+                            [class.bg-success]="todo.priority === 'low'" 
+                            [class.bg-warning]="todo.priority === 'medium'" 
+                            [class.bg-danger]="todo.priority === 'high'"
+                            style="font-size: 0.7rem; text-transform: uppercase;">
+                        {{ todo.priority }}
+                      </span>
+                    </div>
+                    <button type="button" class="btn btn-icon text-danger p-1" (click)="deletePersonalTodo(todo.id)" title="Delete Item">
+                      <i class="bi bi-trash3-fill"></i>
+                    </button>
+                  </div>
+                  
+                  <div *ngIf="!personalTodos.length" class="text-center py-5">
+                    <div class="opacity-50">
+                      <i class="bi bi-card-checklist fs-1"></i>
+                      <p class="mt-2 mb-0">Your personal checklist is empty!</p>
+                      <small class="text-muted">Type something on the left to add your first item.</small>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -114,13 +223,13 @@
       <div class="modal-header">
         <h5 class="modal-title">{{ selectedTask.title }}</h5>
         <div class="d-flex align-items-center">
-          <button type="button" class="btn btn-icon text-white" (click)="openEditTaskModal(selectedTask)" title="Edit Task">
+          <button type="button" class="btn btn-icon text-secondary" (click)="openEditTaskModal(selectedTask)" title="Edit Task">
             <i class="bi bi-pencil"></i>
           </button>
           <button type="button" class="btn btn-icon text-danger" (click)="deleteTask(selectedTask._id!); closeModal()" title="Delete Task">
             <i class="bi bi-trash3"></i>
           </button>
-          <button type="button" class="btn btn-icon text-white ms-2" (click)="closeModal()">
+          <button type="button" class="btn btn-icon text-secondary ms-2" (click)="closeModal()">
             <i class="bi bi-x-lg"></i>
           </button>
         </div>
@@ -150,11 +259,11 @@
               <button class="btn btn-primary-glass w-100" *ngIf="selectedTask.status === 'Pending'" (click)="updateStatus(selectedTask, 'In Progress')">
                 <i class="bi bi-play-fill me-1"></i>Start Task
               </button>
-              <button class="btn btn-success-glass w-100" *ngIf="selectedTask.status === 'In Progress'" (click)="updateStatus(selectedTask, 'Waiting for Approval')">
-                <i class="bi bi-check-lg me-1"></i>Submit for Approval
+              <button class="btn btn-success-glass w-100" *ngIf="selectedTask.status === 'In Progress'" (click)="updateStatus(selectedTask, 'Done')">
+                <i class="bi bi-check-lg me-1"></i>Mark as Completed
               </button>
-              <button class="btn btn-warning-glass w-100" (click)="requestClarification(selectedTask)" title="Flag this task for the owner — they will be notified to provide guidance">
-                <i class="bi bi-question-circle me-1"></i>Ask Owner
+              <button class="btn btn-warning-glass w-100" (click)="requestClarification(selectedTask)">
+                <i class="bi bi-question-circle me-1"></i>Need Clarification
               </button>
             </div>
 
@@ -205,7 +314,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">{{ editingTask ? 'Edit Task' : 'Assign New Task' }}</h5>
-        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+        <button type="button" class="btn btn-icon text-secondary" (click)="closeModal()">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -233,7 +342,6 @@
               <select class="form-select glass-input" formControlName="status">
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
-                <option value="Waiting for Approval">Waiting for Approval</option>
                 <option value="Done">Done</option>
                 <option value="Scheduled">Scheduled</option>
               </select>

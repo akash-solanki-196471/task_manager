@@ -14,14 +14,11 @@ const getTasks = async (req, res) => {
         .populate('comments.user', 'username role')
         .sort({ createdAt: -1 });
     } else {
-      // Employee sees tasks assigned to them (unless reassigned to admin) or created by them
+      // Employee sees tasks assigned to them or created by them
       tasks = await Task.find({
         $or: [
           { createdBy: req.user._id },
-          { 
-            assignedTo: req.user._id,
-            isReassignedToAdmin: false 
-          }
+          { assignedTo: req.user._id }
         ]
       })
       .populate('createdBy', 'username email role')

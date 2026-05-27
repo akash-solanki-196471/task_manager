@@ -1,4 +1,4 @@
-/* Login Component - Glassmorphism Refactoring */
+/* Login Component - Premium Light Theme (White Mode) */
 .login-container {
   min-height: 100vh;
   background: transparent;
@@ -9,16 +9,17 @@
 }
 
 .login-card-glass {
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.88);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(15, 23, 42, 0.08);
   border-radius: 24px;
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 20px 45px rgba(15, 23, 42, 0.06), inset 0 1px 1px rgba(255, 255, 255, 0.8);
   width: 100%;
-  max-width: 450px;
+  max-width: 460px;
   overflow: hidden;
   animation: fadeInUp 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+  color: #0f172a;
 }
 
 .login-header-glass {
@@ -32,25 +33,41 @@
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   margin-bottom: 0.5rem;
-  font-size: 2rem;
+  font-size: 2.25rem;
+}
+
+.login-header-glass p.text-muted {
+  color: var(--text-secondary) !important;
 }
 
 .login-body {
   padding: 0 2.5rem 3rem;
 }
 
+.login-body label.form-label {
+  color: var(--text-secondary) !important;
+  font-size: 0.75rem !important;
+  letter-spacing: 1px;
+}
+
 .glass-form-control {
-  background: rgba(255, 255, 255, 0.5) !important;
-  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  background: #ffffff !important;
+  border: 1px solid #cbd5e1 !important;
+  color: #0f172a !important;
   border-radius: 12px !important;
   padding: 12px 1rem !important;
   transition: var(--transition) !important;
 }
 
 .glass-form-control:focus {
-  background: white !important;
+  background: #ffffff !important;
   border-color: #6366f1 !important;
-  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
+  box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15) !important;
+}
+
+.input-group-text {
+  color: var(--text-muted-gray) !important;
+  font-size: 1.1rem;
 }
 
 .btn-login-glass {
@@ -62,20 +79,53 @@
   font-weight: 700;
   width: 100%;
   margin-top: 1rem;
-  box-shadow: 0 10px 15px -3px rgba(99, 102, 241, 0.3);
+  box-shadow: 0 10px 15px -3px rgba(79, 70, 229, 0.25);
   transition: var(--transition);
 }
 
 .btn-login-glass:hover {
   transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(99, 102, 241, 0.4);
+  box-shadow: 0 16px 20px rgba(79, 70, 229, 0.35);
+  color: #ffffff;
 }
 
 .btn-login-glass:active {
   transform: translateY(0);
 }
 
+.btn-login-glass:disabled {
+  background: rgba(79, 70, 229, 0.5);
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
 @keyframes fadeInUp {
-  from { opacity: 0; transform: translateY(40px); }
+  from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
+}
+
+.loading-overlay {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Premium Form Validation Styling */
+.glass-form-control.is-invalid {
+  border-color: #ef4444 !important;
+}
+
+.glass-form-control.is-invalid:focus {
+  box-shadow: 0 0 0 4px rgba(239, 68, 68, 0.15) !important;
+}
+
+.invalid-feedback {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #ef4444;
+  margin-top: 0.35rem;
+  padding-left: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }

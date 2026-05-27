@@ -1,6 +1,6 @@
 <div class="dashboard-wrapper">
   <!-- Sidebar-like Navigation -->
-  <nav class="navbar navbar-expand-lg navbar-dark glass-nav pt-4 pb-3">
+  <nav class="navbar navbar-expand-lg navbar-light glass-nav pt-4 pb-3">
     <div class="container-fluid px-4">
       <a class="navbar-brand animate-fade-in d-flex align-items-center ms-2" href="#">
         <div class="logo-icon me-3">
@@ -35,9 +35,8 @@
               <option value="all">All Status</option>
               <option value="Pending">Pending</option>
               <option value="In Progress">In Progress</option>
-              <option value="Waiting for Approval">Waiting for Approval</option>
               <option value="Completed">Completed</option>
-              <option value="Sent Back">Sent Back</option>
+              <option value="Reverted">Reverted</option>
             </select>
           </div>
           <button class="btn btn-primary-glass px-4" (click)="openCreateTaskModal()">
@@ -48,7 +47,7 @@
     </div>
 
     <!-- Statistics Section -->
-    <div class="row g-4 mb-5 animate-slide-up">
+    <div class="row g-4 mb-5 animate-slide-up justify-content-center">
       <div class="col-6 col-md-4 col-xl-2">
         <div class="stat-glass-card purple">
           <div class="icon"><i class="bi bi-people"></i></div>
@@ -64,17 +63,10 @@
         </div>
       </div>
       <div class="col-6 col-md-4 col-xl-2">
-        <div class="stat-glass-card orange">
-          <div class="icon"><i class="bi bi-hourglass-split"></i></div>
-          <div class="value">{{ stats.pendingApprovals }}</div>
-          <div class="label">Pending Approvals</div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-xl-2">
         <div class="stat-glass-card red">
           <div class="icon"><i class="bi bi-arrow-return-left"></i></div>
           <div class="value">{{ stats.revertedTasks }}</div>
-          <div class="label">Sent Back</div>
+          <div class="label">Reverted Tasks</div>
         </div>
       </div>
       <div class="col-6 col-md-4 col-xl-2">
@@ -142,8 +134,7 @@
               <div class="tabs-scroll scroll-custom">
                 <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">All Tasks</button>
                 <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">Pending</button>
-                <button class="tab-btn" [class.active]="activeTab === 'approval'" (click)="setTab('approval')">Approvals</button>
-                <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Sent Back</button>
+                <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Reverted</button>
                 <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">Completed</button>
               </div>
             </div>
@@ -193,7 +184,6 @@
                         <button class="btn btn-table-icon text-info" (click)="openDetailModal(task)"><i class="bi bi-chat-left-text"></i></button>
                         <button class="btn btn-table-icon text-primary" (click)="openEditTaskModal(task)"><i class="bi bi-pencil"></i></button>
                         <button class="btn btn-table-icon text-danger" (click)="deleteTask(task._id!)"><i class="bi bi-trash3"></i></button>
-                        <button class="btn btn-table-icon text-success" *ngIf="task.status === 'Waiting for Approval'" (click)="approveTask(task)"><i class="bi bi-check-circle"></i></button>
                       </div>
                     </td>
                   </tr>
@@ -219,7 +209,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title"><i class="bi bi-info-circle me-2"></i>Task: {{ selectedTask.title }}</h5>
-        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+        <button type="button" class="btn btn-icon text-secondary" (click)="closeModal()">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -279,7 +269,7 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title">{{ editingTask ? 'Edit Task' : 'Assign New Task' }}</h5>
-        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+        <button type="button" class="btn btn-icon text-secondary" (click)="closeModal()">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -307,7 +297,6 @@
               <select class="form-select glass-input" formControlName="status">
                 <option value="Pending">Pending</option>
                 <option value="In Progress">In Progress</option>
-                <option value="Waiting for Approval">Waiting for Approval</option>
                 <option value="Done">Done</option>
                 <option value="Scheduled">Scheduled</option>
               </select>
@@ -344,11 +333,11 @@
 
 <!-- User Modal -->
 <div class="modal glass-modal show" *ngIf="showUserModal">
-  <div class="modal-dialog modal-sm">
+  <div class="modal-dialog modal-md">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title">{{ editingUser ? 'Edit Profile' : 'Add Member' }}</h5>
-        <button type="button" class="btn btn-icon text-white" (click)="closeModal()">
+         <h5 class="modal-title">{{ editingUser ? 'Edit Profile' : 'Add Member' }}</h5>
+        <button type="button" class="btn btn-icon text-secondary" (click)="closeModal()">
           <i class="bi bi-x-lg"></i>
         </button>
       </div>
@@ -375,7 +364,7 @@
           </div>
         </form>
       </div>
-      <div class="modal-footer border-0">
+      <div class="modal-footer border-0 d-flex justify-content-end gap-2">
         <button type="button" class="btn btn-light-glass btn-sm" (click)="closeModal()">Cancel</button>
         <button type="button" class="btn btn-primary-glass btn-sm" (click)="saveUser()" [disabled]="isUserSubmitting">
           {{ isUserSubmitting ? 'Saving...' : 'Save Member' }}

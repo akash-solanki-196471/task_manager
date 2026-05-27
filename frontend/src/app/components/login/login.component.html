@@ -2,32 +2,100 @@
   <div class="login-card-glass">
     <div class="login-header-glass">
       <i class="bi bi-kanban-fill" style="font-size: 3rem; color: #6366f1; margin-bottom: 1rem; display: block;"></i>
-      <h2>Welcome Back</h2>
-      <p class="text-muted">Sign in to manage your tasks</p>
+      <h2>{{ isLoginMode ? 'Welcome Back' : 'Create Account' }}</h2>
+      <p class="text-muted">{{ isLoginMode ? 'Sign in to manage your tasks' : 'Join us to start managing tasks' }}</p>
     </div>
 
     <div class="login-body">
-      <form [formGroup]="loginForm" (ngSubmit)="onLoginSubmit()">
+      <!-- Connection Status Alerts -->
+      <div *ngIf="backendStatus === 'offline'" class="alert alert-danger border-0 rounded-3 mb-4 shadow-sm d-flex align-items-center" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2) !important;">
+        <i class="bi bi-exclamation-triangle-fill me-2 fs-5"></i>
+        <div class="small text-start">
+          <strong class="d-block">Backend Server Offline</strong>
+          Please make sure the backend server is running.
+          <button type="button" class="btn btn-link btn-sm p-0 d-block mt-1 fw-bold text-decoration-none text-start" style="color: #ef4444;" (click)="checkSystemHealth()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Retry Connection
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="backendStatus === 'online' && dbStatus === 'disconnected'" class="alert alert-warning border-0 rounded-3 mb-4 shadow-sm d-flex align-items-center" style="background: rgba(245, 158, 11, 0.1); color: #f59e0b; border: 1px solid rgba(245, 158, 11, 0.2) !important;">
+        <i class="bi bi-database-fill-exclamation me-2 fs-5"></i>
+        <div class="small text-start">
+          <strong class="d-block">Database Offline</strong>
+          Please make sure the MongoDB service is running.
+          <button type="button" class="btn btn-link btn-sm p-0 d-block mt-1 fw-bold text-decoration-none text-start" style="color: #f59e0b;" (click)="checkSystemHealth()">
+            <i class="bi bi-arrow-clockwise me-1"></i>Retry Connection
+          </button>
+        </div>
+      </div>
+
+      <form [formGroup]="isLoginMode ? loginForm : registerForm" (ngSubmit)="isLoginMode ? onLoginSubmit() : onRegisterSubmit()">
+        <!-- Username (Signup Only) -->
+        <div class="mb-3" *ngIf="!isLoginMode">
+          <label class="form-label fw-bold small text-uppercase">Username</label>
+          <div class="input-group">
+            <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-person"></i></span>
+            <input type="text" class="form-control glass-form-control" [class.is-invalid]="r['username'].touched && r['username'].invalid" formControlName="username" placeholder="Choose a username">
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="r['username'].touched && r['username'].errors">
+            <span *ngIf="r['username'].errors['required']"><i class="bi bi-exclamation-circle me-1"></i>Username is required.</span>
+            <span *ngIf="r['username'].errors['minlength']"><i class="bi bi-exclamation-circle me-1"></i>Username must be at least 3 characters.</span>
+          </div>
+        </div>
+
+        <!-- Email Address (Both) -->
         <div class="mb-3">
           <label class="form-label fw-bold small text-uppercase">Email Address</label>
           <div class="input-group">
             <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-envelope"></i></span>
-            <input type="email" class="form-control glass-form-control" formControlName="email" placeholder="name@company.com">
+            <input type="email" class="form-control glass-form-control" [class.is-invalid]="isLoginMode ? (l['email'].touched && l['email'].invalid) : (r['email'].touched && r['email'].invalid)" formControlName="email" placeholder="name@company.com">
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="isLoginMode ? (l['email'].touched && l['email'].errors) : (r['email'].touched && r['email'].errors)">
+            <span *ngIf="isLoginMode ? l['email'].errors?.['required'] : r['email'].errors?.['required']"><i class="bi bi-exclamation-circle me-1"></i>Email is required.</span>
+            <span *ngIf="isLoginMode ? l['email'].errors?.['email'] : r['email'].errors?.['email']"><i class="bi bi-exclamation-circle me-1"></i>Please enter a valid email address.</span>
           </div>
         </div>
 
+        <!-- Password (Both) -->
         <div class="mb-4">
           <label class="form-label fw-bold small text-uppercase">Password</label>
           <div class="input-group">
             <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-shield-lock"></i></span>
-            <input type="password" class="form-control glass-form-control" formControlName="password" placeholder="••••••••">
+            <input type="password" class="form-control glass-form-control" [class.is-invalid]="isLoginMode ? (l['password'].touched && l['password'].invalid) : (r['password'].touched && r['password'].invalid)" formControlName="password" placeholder="••••••••">
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="isLoginMode ? (l['password'].touched && l['password'].errors) : (r['password'].touched && r['password'].errors)">
+            <span *ngIf="isLoginMode ? l['password'].errors?.['required'] : r['password'].errors?.['required']"><i class="bi bi-exclamation-circle me-1"></i>Password is required.</span>
+            <span *ngIf="isLoginMode ? l['password'].errors?.['minlength'] : r['password'].errors?.['minlength']"><i class="bi bi-exclamation-circle me-1"></i>Password must be at least 6 characters.</span>
           </div>
         </div>
 
-        <button type="submit" class="btn-login-glass" [disabled]="loading">
+        <!-- Confirm Password (Signup Only) -->
+        <div class="mb-4" *ngIf="!isLoginMode">
+          <label class="form-label fw-bold small text-uppercase">Confirm Password</label>
+          <div class="input-group">
+            <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-shield-check"></i></span>
+            <input type="password" class="form-control glass-form-control" [class.is-invalid]="r['confirmPassword'].touched && (r['confirmPassword'].invalid || registerForm.hasError('mismatch'))" formControlName="confirmPassword" placeholder="••••••••">
+          </div>
+          <div class="invalid-feedback d-block" *ngIf="r['confirmPassword'].touched && (r['confirmPassword'].errors || registerForm.hasError('mismatch'))">
+            <span *ngIf="r['confirmPassword'].errors?.['required']"><i class="bi bi-exclamation-circle me-1"></i>Confirm password is required.</span>
+            <span *ngIf="!r['confirmPassword'].errors?.['required'] && registerForm.hasError('mismatch')"><i class="bi bi-exclamation-circle me-1"></i>Passwords do not match.</span>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-login-glass" [disabled]="loading || backendStatus === 'offline' || dbStatus === 'disconnected'">
           <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
-          Sign In
+          {{ isLoginMode ? 'Sign In' : 'Register' }}
         </button>
+
+        <div class="text-center mt-4">
+          <p class="text-muted small mb-0">
+            {{ isLoginMode ? "Don't have an account?" : "Already have an account?" }}
+            <button type="button" class="btn btn-link p-0 fw-bold" style="color: #6366f1; text-decoration: none;" (click)="toggleMode()">
+              {{ isLoginMode ? 'Register Now' : 'Sign In' }}
+            </button>
+          </p>
+        </div>
       </form>
     </div>
   </div>
