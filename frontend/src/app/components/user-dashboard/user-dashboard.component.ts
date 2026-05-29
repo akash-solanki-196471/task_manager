@@ -115,7 +115,21 @@ export class UserDashboardComponent implements OnInit {
                        (task.description?.toLowerCase().includes(search) ?? false);
       }
 
-      if (this.activeTab === 'pending') matchesTab = task.status === 'Pending' || task.status === 'Reverted';
+      if (this.activeTab === 'pending') {
+        const isPendingOrReverted = task.status === 'Pending' || task.status === 'Reverted';
+        if (!isPendingOrReverted) {
+          matchesTab = false;
+        } else if (task.reminderAt) {
+          const reminderDate = new Date(task.reminderAt);
+          const todayDate = new Date();
+          const isSameDay = reminderDate.getDate() === todayDate.getDate() &&
+                            reminderDate.getMonth() === todayDate.getMonth() &&
+                            reminderDate.getFullYear() === todayDate.getFullYear();
+          matchesTab = isSameDay;
+        } else {
+          matchesTab = true;
+        }
+      }
       else if (this.activeTab === 'in-progress') matchesTab = task.status === 'In Progress';
       else if (this.activeTab === 'completed') matchesTab = task.status === 'Approved' || task.status === 'Done';
       else if (this.activeTab === 'scheduled') matchesTab = task.status === 'Scheduled' || (task.reminderAt != null);
@@ -150,7 +164,12 @@ export class UserDashboardComponent implements OnInit {
   openCreateTaskModal(): void {
     this.showDetailModal = false;
     this.editingTask = null;
-    this.taskForm.reset({ priority: 'medium', status: 'Pending' });
+    const currentUser = this.authService.getCurrentUser();
+    this.taskForm.reset({ 
+      priority: 'medium', 
+      status: 'Pending',
+      assignedTo: currentUser?._id || null
+    });
     this.showTaskModal = true;
     this.cdr.detectChanges();
   }

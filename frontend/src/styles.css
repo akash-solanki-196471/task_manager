@@ -567,6 +567,7 @@ a:hover {
   box-shadow: 0 10px 30px rgba(15,23,42,0.1) !important;
   border-radius: 12px !important;
   opacity: 1 !important;
+  display: block !important;
 }
 .toast-success {
   border-left: 5px solid #10b981 !important;
@@ -630,4 +631,187 @@ a:hover {
 .date-cell.overdue {
   color: #ef4444 !important;
   font-weight: 600;
+}
+
+/* Comment Input Area Alignment */
+.comment-input-area {
+  display: flex !important;
+  gap: 10px !important;
+  align-items: center !important;
+  margin-top: 15px !important;
+}
+
+.comment-input-area .form-control,
+.comment-input-area input {
+  flex: 1 !important;
+  margin-bottom: 0 !important;
+}
+
+.comment-input-area button {
+  height: 48px !important;
+  width: 48px !important;
+  min-width: 48px !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 12px !important;
+  padding: 0 !important;
+  background: var(--primary-gradient) !important;
+  color: #ffffff !important;
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2) !important;
+  transition: var(--transition) !important;
+}
+
+.comment-input-area button:hover {
+  transform: translateY(-1px) !important;
+  box-shadow: 0 6px 16px rgba(79, 70, 229, 0.3) !important;
+}
+
+.comment-input-area button:disabled {
+  background: #e2e8f0 !important;
+  color: #94a3b8 !important;
+  box-shadow: none !important;
+  transform: none !important;
+}
+
+/* Mobile Responsive Media Queries (Optimized for Mobile WebViews) */
+@media (max-width: 768px) {
+  /* Navbar spacing */
+  .glass-nav {
+    padding-left: 8px !important;
+    padding-right: 8px !important;
+  }
+  .glass-nav .navbar-brand {
+    font-size: 1rem !important;
+  }
+  .logo-icon {
+    width: 36px !important;
+    height: 36px !important;
+    margin-right: 8px !important;
+  }
+  .logout-btn {
+    padding: 0.4rem 0.8rem !important;
+    font-size: 0.8rem !important;
+    border-radius: 10px !important;
+  }
+
+  /* Padding adjustments */
+  .content-area {
+    padding: 12px !important;
+  }
+
+  /* Stats grid adjustment */
+  .stat-glass-card {
+    padding: 12px 6px !important;
+    border-radius: 14px !important;
+  }
+  .stat-glass-card .value {
+    font-size: 1.3rem !important;
+  }
+  .stat-glass-card .label {
+    font-size: 0.65rem !important;
+    letter-spacing: 0.5px !important;
+  }
+
+  /* Horizontal scrolling for navigation tabs so they stay inline */
+  .tabs-scroll {
+    display: flex !important;
+    overflow-x: auto !important;
+    white-space: nowrap !important;
+    gap: 5px !important;
+    padding-bottom: 6px !important;
+    -webkit-overflow-scrolling: touch !important;
+  }
+  .tabs-scroll::-webkit-scrollbar {
+    height: 3px !important;
+  }
+
+  /* Stacked search and filters card */
+  .glass-card.p-3.d-flex {
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 12px !important;
+  }
+  .search-box, .search-box input, .search-box .form-control {
+    width: 100% !important;
+  }
+  .glass-card select {
+    width: 100% !important;
+  }
+
+  /* Convert flat table into standalone glassmorphic card cards */
+  .glass-table, .glass-table thead, .glass-table tbody, .glass-table th, .glass-table td, .glass-table tr {
+    display: block !important;
+    width: 100% !important;
+  }
+
+  .glass-table thead {
+    display: none !important; /* Hide standard headers */
+  }
+
+  .glass-table tr {
+    background: rgba(255, 255, 255, 0.8) !important;
+    border: 1px solid rgba(15, 23, 42, 0.08) !important;
+    border-radius: 16px !important;
+    margin-bottom: 16px !important;
+    padding: 16px !important;
+    box-shadow: 0 4px 15px rgba(15, 23, 42, 0.02) !important;
+  }
+
+  .glass-table td {
+    display: flex !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+    padding: 10px 0 !important;
+    border-bottom: 1px dashed rgba(15, 23, 42, 0.06) !important;
+    text-align: right !important;
+    font-size: 0.85rem !important;
+  }
+
+  /* Inject mobile-specific label headers dynamically */
+  .glass-table td::before {
+    content: attr(data-label) !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    font-size: 0.7rem !important;
+    color: var(--text-muted-gray) !important;
+    letter-spacing: 0.8px !important;
+    float: left !important;
+    text-align: left !important;
+  }
+
+  .glass-table td:last-child {
+    border-bottom: none !important;
+    margin-top: 8px !important;
+    padding-top: 12px !important;
+    justify-content: center !important; /* Center actions */
+  }
+
+  /* Modal responsiveness for smaller device containers */
+  .glass-modal .modal-dialog {
+    margin: 12px !important;
+    margin-top: 30px !important;
+  }
+  .glass-modal .modal-content {
+    border-radius: 20px !important;
+  }
+  .glass-modal .modal-body {
+    padding: 1.5rem !important;
+  }
+  
+  /* Audit history list column borders */
+  .col-md-5.border-start {
+    border-start: none !important;
+    border-top: 1px solid rgba(0, 0, 0, 0.05) !important;
+    margin-top: 24px !important;
+    padding-top: 20px !important;
+  }
+
+  /* Comment forms matching height */
+  .comment-input-area button {
+    height: 42px !important;
+    width: 42px !important;
+    min-width: 42px !important;
+  }
 }

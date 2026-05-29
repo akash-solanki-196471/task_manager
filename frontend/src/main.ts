@@ -3,7 +3,7 @@ import { AppComponent } from './app/app.component';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 import { provideRouter } from '@angular/router';
 import { routes } from './app/app.routes';
-import { provideAnimations } from '@angular/platform-browser/animations';
+import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideToastr } from 'ngx-toastr';
 import { AuthInterceptor } from './app/interceptor/auth.interceptor';
 import { HTTP_INTERCEPTORS } from '@angular/common/http';
@@ -17,11 +17,11 @@ bootstrapApplication(AppComponent, {
       useClass: AuthInterceptor,
       multi: true
     },
-    provideAnimations(),
+    provideNoopAnimations(),
     provideToastr({
       timeOut: 3000,
       positionClass: 'toast-top-right',
-      preventDuplicates: true,
+      preventDuplicates: false,
       progressBar: true,
       closeButton: true
     })
