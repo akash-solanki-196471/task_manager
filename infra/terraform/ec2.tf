@@ -47,7 +47,7 @@ data "aws_ec2_managed_prefix_list" "cloudfront" {
 
 resource "aws_security_group" "backend" {
   name        = "${var.app_name}-backend-sg"
-  description = "Task Manager backend — SSH + HTTP from CloudFront only"
+  description = "Task Manager backend - SSH + HTTP from CloudFront only"
 
   # SSH — restrict to your IP in production (var.ec2_ssh_allowed_cidr)
   ingress {
