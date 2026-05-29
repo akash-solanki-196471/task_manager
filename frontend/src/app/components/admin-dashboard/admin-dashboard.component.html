@@ -4,7 +4,7 @@
     <div class="container-fluid px-4">
       <a class="navbar-brand animate-fade-in d-flex align-items-center ms-2" href="#">
         <div class="logo-icon me-3">
-          <i class="bi bi-kanban-fill"></i>
+          <img src="assets/logo.svg" alt="SI" style="width: 100%; height: 100%; object-fit: contain; padding: 3px;">
         </div>
         <span class="fw-bold tracking-tight">Workflow Tracking</span>
       </a>
@@ -22,179 +22,227 @@
   </nav>
 
   <div class="container-fluid py-4 content-area">
-    <!-- Search & Filter Row (New Position) -->
+    <!-- Main Dashboard Tabs Navigation -->
     <div class="row mb-4 animate-slide-up">
       <div class="col-md-12">
-        <div class="glass-card p-3 d-flex flex-wrap gap-3 align-items-center justify-content-between">
-          <div class="d-flex align-items-center gap-3 flex-grow-1" style="max-width: 600px;">
-            <div class="search-box flex-grow-1">
-              <i class="bi bi-search"></i>
-              <input type="text" class="form-control" placeholder="Search tasks, descriptions or employees..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
-            </div>
-            <select class="form-select glass-input border-0 shadow-sm" style="width: auto; min-width: 150px;" [(ngModel)]="filterStatus" (change)="applyFilters()">
-              <option value="all">All Status</option>
-              <option value="Pending">Pending</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Completed">Completed</option>
-              <option value="Reverted">Reverted</option>
-            </select>
-          </div>
-          <button class="btn btn-primary-glass px-4" (click)="openCreateTaskModal()">
-            <i class="bi bi-plus-lg me-2"></i>New Task
+        <div class="glass-card p-2 d-flex justify-content-start align-items-center gap-2">
+          <button class="tab-btn px-4 py-2" [class.active]="activeMainTab === 'tasks'" (click)="activeMainTab = 'tasks'">
+            <i class="bi bi-layout-text-sidebar-reverse me-2"></i>Workflow & Tasks
+          </button>
+          <button class="tab-btn px-4 py-2" [class.active]="activeMainTab === 'members'" (click)="activeMainTab = 'members'">
+            <i class="bi bi-people-fill me-2"></i>Team Members
           </button>
         </div>
       </div>
     </div>
 
-    <!-- Statistics Section -->
-    <div class="row g-4 mb-5 animate-slide-up justify-content-center">
-      <div class="col-6 col-md-4 col-xl-2">
-        <div class="stat-glass-card purple">
-          <div class="icon"><i class="bi bi-people"></i></div>
-          <div class="value">{{ stats.totalUsers }}</div>
-          <div class="label">Total Users</div>
+    <!-- Tasks & Workflow Tab Content -->
+    <div *ngIf="activeMainTab === 'tasks'">
+      <!-- Search & Filter Row -->
+      <div class="row mb-4 animate-slide-up">
+        <div class="col-md-12">
+          <div class="glass-card p-3 d-flex flex-wrap gap-3 align-items-center justify-content-between">
+            <div class="d-flex align-items-center gap-3 flex-grow-1" style="max-width: 600px;">
+              <div class="search-box flex-grow-1">
+                <i class="bi bi-search"></i>
+                <input type="text" class="form-control" placeholder="Search tasks, descriptions or employees..." [(ngModel)]="searchTerm" (ngModelChange)="applyFilters()">
+              </div>
+              <select class="form-select glass-input border-0 shadow-sm" style="width: auto; min-width: 150px;" [(ngModel)]="filterStatus" (change)="onStatusFilterChange()">
+                <option value="all">All Status</option>
+                <option value="Pending">Pending</option>
+                <option value="In Progress">In Progress</option>
+                <option value="Approved">Approved</option>
+                <option value="Done">Done</option>
+                <option value="Reverted">Reverted</option>
+                <option value="Scheduled">Scheduled</option>
+              </select>
+            </div>
+            <button class="btn btn-primary-glass px-4" (click)="openCreateTaskModal()">
+              <i class="bi bi-plus-lg me-2"></i>New Task
+            </button>
+          </div>
         </div>
       </div>
-      <div class="col-6 col-md-4 col-xl-2">
-        <div class="stat-glass-card blue">
-          <div class="icon"><i class="bi bi-journal-text"></i></div>
-          <div class="value">{{ stats.totalTasks }}</div>
-          <div class="label">Total Tasks</div>
+
+      <!-- Statistics Section -->
+      <div class="row g-4 mb-5 animate-slide-up justify-content-center">
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="stat-glass-card purple" (click)="activeMainTab = 'members'">
+            <div class="icon"><i class="bi bi-people"></i></div>
+            <div class="value">{{ stats.totalUsers }}</div>
+            <div class="label">Total Users</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="stat-glass-card blue" (click)="showAllTasks()">
+            <div class="icon"><i class="bi bi-journal-text"></i></div>
+            <div class="value">{{ stats.totalTasks }}</div>
+            <div class="label">Total Tasks</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="stat-glass-card red" (click)="showRevertedTasks()">
+            <div class="icon"><i class="bi bi-arrow-return-left"></i></div>
+            <div class="value">{{ stats.revertedTasks }}</div>
+            <div class="label">Reverted Tasks</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="stat-glass-card yellow" (click)="showOverdueTasks()">
+            <div class="icon"><i class="bi bi-exclamation-triangle"></i></div>
+            <div class="value">{{ stats.overdueTasks }}</div>
+            <div class="label">Overdue Tasks</div>
+          </div>
+        </div>
+        <div class="col-6 col-md-4 col-xl-2">
+          <div class="stat-glass-card green" (click)="showCompletedTasks()">
+            <div class="icon"><i class="bi bi-check2-circle"></i></div>
+            <div class="value">{{ stats.completedTasks }}</div>
+            <div class="label">Completed</div>
+          </div>
         </div>
       </div>
-      <div class="col-6 col-md-4 col-xl-2">
-        <div class="stat-glass-card red">
-          <div class="icon"><i class="bi bi-arrow-return-left"></i></div>
-          <div class="value">{{ stats.revertedTasks }}</div>
-          <div class="label">Reverted Tasks</div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-xl-2">
-        <div class="stat-glass-card yellow">
-          <div class="icon"><i class="bi bi-exclamation-triangle"></i></div>
-          <div class="value">{{ stats.overdueTasks }}</div>
-          <div class="label">Overdue Tasks</div>
-        </div>
-      </div>
-      <div class="col-6 col-md-4 col-xl-2">
-        <div class="stat-glass-card green">
-          <div class="icon"><i class="bi bi-check2-circle"></i></div>
-          <div class="value">{{ stats.completedTasks }}</div>
-          <div class="label">Completed</div>
+
+      <div class="row g-4">
+        <!-- Tasks Management -->
+        <div class="col-lg-12 animate-slide-up">
+          <div class="glass-card">
+            <div class="card-header-glass pt-4 ps-4">
+              <div class="d-flex align-items-center">
+                <h5 class="mb-0"><i class="bi bi-layout-text-sidebar-reverse me-2"></i>Workflow Tracking</h5>
+                <span *ngIf="selectedUser" class="badge bg-primary ms-3 glass-badge">
+                  Filtering: {{ selectedUser.username }} 
+                  <i class="bi bi-x-circle ms-1 cursor-pointer" (click)="clearUserFilter()"></i>
+                </span>
+              </div>
+            </div>
+            <div class="card-body">
+              <!-- Tabs Row -->
+              <div class="filter-row mb-4">
+                <div class="tabs-scroll scroll-custom">
+                  <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">All Tasks</button>
+                  <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">Pending</button>
+                  <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Reverted</button>
+                  <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">Completed</button>
+                </div>
+              </div>
+
+              <!-- Tasks Table -->
+              <div class="table-responsive scroll-custom">
+                <table class="table glass-table">
+                  <thead>
+                    <tr>
+                      <th>Task Details</th>
+                      <th>Assigned To</th>
+                      <th>Assigned From</th>
+                      <th>Priority</th>
+                      <th>Status</th>
+                      <th>Deadline</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let task of filteredTasks">
+                      <td data-label="Task Details">
+                        <div class="task-title">{{ task.title }}</div>
+                        <div class="task-desc-short">{{ task.description | slice:0:40 }}{{ task.description && task.description.length > 40 ? '...' : '' }}</div>
+                      </td>
+                      <td data-label="Assigned To">
+                        <div class="d-flex align-items-center" *ngIf="task.assignedTo">
+                          <img src="https://ui-avatars.com/api/?name={{ task.assignedTo.username }}&background=random" class="rounded-circle me-2" width="24">
+                          <span>{{ task.assignedTo.username }}</span>
+                        </div>
+                        <span class="text-muted" *ngIf="!task.assignedTo">Unassigned</span>
+                      </td>
+                      <td data-label="Assigned From">
+                        <div class="d-flex align-items-center" *ngIf="task.createdBy">
+                          <img src="https://ui-avatars.com/api/?name={{ task.createdBy.username }}&background=random" class="rounded-circle me-2" width="24">
+                          <span>{{ task.createdBy.username }}</span>
+                        </div>
+                        <span class="text-muted" *ngIf="!task.createdBy">System</span>
+                      </td>
+                      <td data-label="Priority">
+                        <span class="priority-dot" [ngClass]="task.priority"></span>
+                        {{ task.priority | titlecase }}
+                      </td>
+                      <td data-label="Status">
+                        <span class="badge status-badge-glass" [ngClass]="getStatusClass(task.status)">
+                          {{ task.status }}
+                        </span>
+                      </td>
+                      <td data-label="Deadline">
+                        <div class="date-cell" [class.overdue]="task.status !== 'Approved' && task.dueAt && (task.dueAt.toString() < today.toISOString())">
+                          {{ task.dueAt ? (task.dueAt | date:'MMM d, h:mm a') : 'No date' }}
+                        </div>
+                      </td>
+                      <td data-label="Actions">
+                        <div class="d-flex align-items-center gap-2">
+                          <button class="btn btn-table-icon text-info" (click)="openDetailModal(task)"><i class="bi bi-chat-left-text"></i></button>
+                          <button class="btn btn-table-icon text-primary" (click)="openEditTaskModal(task)"><i class="bi bi-pencil"></i></button>
+                          <button class="btn btn-table-icon text-danger" (click)="deleteTask(task._id!)"><i class="bi bi-trash3"></i></button>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr *ngIf="!filteredTasks.length">
+                      <td colspan="7" class="text-center py-5">
+                        <i class="bi bi-inbox fs-1 d-block mb-2 text-muted opacity-50"></i>
+                        No tasks matching filters
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
 
-    <div class="row g-4">
-      <!-- Users Management -->
-      <div class="col-lg-4 animate-slide-left">
-        <div class="glass-card h-100">
-          <div class="p-4 border-bottom d-flex justify-content-between align-items-center">
-            <h6 class="mb-0 fw-bold text-uppercase letter-spacing-1"><i class="bi bi-people-fill me-2 text-primary"></i>Team Members</h6>
-            <button class="btn btn-primary-glass btn-sm rounded-pill px-3" (click)="openCreateUserModal()">
-              <i class="bi bi-person-plus-fill me-1"></i>Add Member
-            </button>
-          </div>
-          <div class="card-body p-0">
-            <div class="user-list scroll-custom">
-              <div class="user-item" *ngFor="let user of users" [class.active]="selectedUser?._id === user._id">
-                <div class="d-flex align-items-center w-100">
-                  <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random" class="rounded-circle me-3" width="40">
-                  <div class="flex-grow-1">
-                    <div class="name">{{ user.username }}</div>
-                    <div class="email">{{ user.email }}</div>
-                  </div>
-                  <div class="actions">
-                    <button class="btn btn-icon text-info" (click)="openEditUserModal(user)"><i class="bi bi-pencil-square"></i></button>
-                    <button class="btn btn-icon text-primary" (click)="viewEmployeeTasks(user)"><i class="bi bi-eye"></i></button>
-                    <button class="btn btn-icon text-danger" (click)="deleteUser(user._id!)" *ngIf="user.role !== 'admin'"><i class="bi bi-trash"></i></button>
-                  </div>
+    <!-- Team Members Tab Content -->
+    <div *ngIf="activeMainTab === 'members'" class="animate-slide-up">
+      <div class="glass-card p-4">
+        <div class="border-bottom pb-3 mb-4 d-flex justify-content-between align-items-center">
+          <h5 class="mb-0 fw-bold"><i class="bi bi-people-fill me-2 text-primary"></i>Team Members Directory</h5>
+          <button class="btn btn-primary-glass rounded-pill px-4" (click)="openCreateUserModal()">
+            <i class="bi bi-person-plus-fill me-2"></i>Add Member
+          </button>
+        </div>
+
+        <div class="row g-4">
+          <div class="col-12 col-md-6 col-lg-4 col-xl-3" *ngFor="let user of users">
+            <div class="stat-glass-card h-100 p-4 d-flex flex-column align-items-center justify-content-between position-relative" style="cursor: default;">
+              <!-- Role Badge -->
+              <span class="badge position-absolute top-0 end-0 m-3 px-3 py-2" 
+                    [ngClass]="user.role === 'admin' ? 'bg-primary' : 'bg-secondary'" 
+                    style="border-radius: 10px; font-weight: 600; font-size: 0.75rem;">
+                {{ user.role === 'admin' ? 'Admin' : 'Employee' }}
+              </span>
+
+              <div class="text-center mt-3 mb-3 w-100">
+                <img src="https://ui-avatars.com/api/?name={{ user.username }}&background=random&size=128" 
+                     class="rounded-circle shadow-sm mb-3 border border-3 border-white animate-fade-in" 
+                     width="80" height="80">
+                <h5 class="name mb-1 fw-bold text-truncate" style="max-width: 100%;">{{ user.username }}</h5>
+                <div class="email text-muted text-truncate mb-3" style="font-size: 0.85rem; max-width: 100%;">
+                  <i class="bi bi-envelope me-1"></i>{{ user.email }}
                 </div>
               </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Tasks Management -->
-      <div class="col-lg-8 animate-slide-right">
-        <div class="glass-card">
-          <div class="card-header-glass pt-4 ps-4">
-            <div class="d-flex align-items-center">
-              <h5 class="mb-0"><i class="bi bi-layout-text-sidebar-reverse me-2"></i>Workflow Tracking</h5>
-              <span *ngIf="selectedUser" class="badge bg-primary ms-3 glass-badge">
-                Filtering: {{ selectedUser.username }} 
-                <i class="bi bi-x-circle ms-1 cursor-pointer" (click)="clearUserFilter()"></i>
-              </span>
-            </div>
-          </div>
-          <div class="card-body">
-            <!-- Tabs Row -->
-            <div class="filter-row mb-4">
-              <div class="tabs-scroll scroll-custom">
-                <button class="tab-btn" [class.active]="activeTab === 'all'" (click)="setTab('all')">All Tasks</button>
-                <button class="tab-btn" [class.active]="activeTab === 'pending'" (click)="setTab('pending')">Pending</button>
-                <button class="tab-btn" [class.active]="activeTab === 'reverted'" (click)="setTab('reverted')">Reverted</button>
-                <button class="tab-btn" [class.active]="activeTab === 'completed'" (click)="setTab('completed')">Completed</button>
+              <!-- Action buttons -->
+              <div class="w-100 border-top pt-3 d-flex justify-content-center gap-2">
+                <button class="btn btn-sm btn-light-glass px-3" (click)="openEditUserModal(user)" title="Edit Profile">
+                  <i class="bi bi-pencil-square me-1 text-info"></i>Edit
+                </button>
+                <button class="btn btn-sm btn-light-glass px-3" (click)="viewEmployeeTasks(user)" title="View Tasks">
+                  <i class="bi bi-eye me-1 text-primary"></i>Tasks
+                </button>
+                <button class="btn btn-sm btn-light-glass px-3 text-danger" 
+                        (click)="deleteUser(user._id!)" 
+                        *ngIf="user.role !== 'admin'" 
+                        title="Delete Member">
+                  <i class="bi bi-trash me-1"></i>Delete
+                </button>
               </div>
-            </div>
-
-            <!-- Tasks Table -->
-            <div class="table-responsive scroll-custom">
-              <table class="table glass-table">
-                <thead>
-                  <tr>
-                    <th>Task Details</th>
-                    <th>Assigned To</th>
-                    <th>Priority</th>
-                    <th>Status</th>
-                    <th>Deadline</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr *ngFor="let task of filteredTasks">
-                    <td>
-                      <div class="task-title">{{ task.title }}</div>
-                      <div class="task-desc-short">{{ task.description | slice:0:40 }}{{ task.description && task.description.length > 40 ? '...' : '' }}</div>
-                    </td>
-                    <td>
-                      <div class="d-flex align-items-center" *ngIf="task.assignedTo">
-                        <img src="https://ui-avatars.com/api/?name={{ task.assignedTo.username }}&background=random" class="rounded-circle me-2" width="24">
-                        <span>{{ task.assignedTo.username }}</span>
-                      </div>
-                      <span class="text-muted" *ngIf="!task.assignedTo">Unassigned</span>
-                    </td>
-                    <td>
-                      <span class="priority-dot" [ngClass]="task.priority"></span>
-                      {{ task.priority | titlecase }}
-                    </td>
-                    <td>
-                      <span class="badge status-badge-glass" [ngClass]="getStatusClass(task.status)">
-                        {{ task.status }}
-                      </span>
-                    </td>
-                    <td>
-                      <div class="date-cell" [class.overdue]="task.status !== 'Approved' && task.dueAt && (task.dueAt.toString() < today.toISOString())">
-                        {{ task.dueAt ? (task.dueAt | date:'MMM d, h:mm a') : 'No date' }}
-                      </div>
-                    </td>
-                    <td>
-                      <div class="btn-group">
-                        <button class="btn btn-table-icon text-info" (click)="openDetailModal(task)"><i class="bi bi-chat-left-text"></i></button>
-                        <button class="btn btn-table-icon text-primary" (click)="openEditTaskModal(task)"><i class="bi bi-pencil"></i></button>
-                        <button class="btn btn-table-icon text-danger" (click)="deleteTask(task._id!)"><i class="bi bi-trash3"></i></button>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr *ngIf="!filteredTasks.length">
-                    <td colspan="6" class="text-center py-5">
-                      <i class="bi bi-inbox fs-1 d-block mb-2 text-muted opacity-50"></i>
-                      No tasks matching filters
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
             </div>
           </div>
         </div>

@@ -41,6 +41,8 @@ export class AdminDashboardComponent implements OnInit {
   filterPriority: string = 'all';
   filterStatus: string = 'all';
   activeTab: string = 'all';
+  activeMainTab: 'tasks' | 'members' = 'tasks';
+  filterOverdue: boolean = false;
 
   stats = {
     totalUsers: 0,
@@ -122,6 +124,7 @@ export class AdminDashboardComponent implements OnInit {
       let matchesPriority = true;
       let matchesStatus = true;
       let matchesUser = true;
+      let matchesOverdue = true;
 
       if (this.searchTerm) {
         const search = this.searchTerm.toLowerCase();
@@ -148,12 +151,53 @@ export class AdminDashboardComponent implements OnInit {
         matchesUser = task.assignedTo?._id === this.selectedUser._id;
       }
 
-      return matchesSearch && matchesPriority && matchesStatus && matchesUser;
+      if (this.filterOverdue) {
+        const now = new Date();
+        matchesOverdue = !!(task.dueAt && new Date(task.dueAt) < now && task.status !== 'Approved' && task.status !== 'Done');
+      }
+
+      return matchesSearch && matchesPriority && matchesStatus && matchesUser && matchesOverdue;
     });
   }
 
   setTab(tab: string): void {
     this.activeTab = tab;
+    this.filterStatus = 'all';
+    this.filterOverdue = false;
+    this.applyFilters();
+  }
+
+  onStatusFilterChange(): void {
+    this.activeTab = 'all';
+    this.filterOverdue = false;
+    this.applyFilters();
+  }
+
+  showAllTasks(): void {
+    this.activeTab = 'all';
+    this.filterStatus = 'all';
+    this.filterOverdue = false;
+    this.applyFilters();
+  }
+
+  showRevertedTasks(): void {
+    this.activeTab = 'reverted';
+    this.filterStatus = 'all';
+    this.filterOverdue = false;
+    this.applyFilters();
+  }
+
+  showOverdueTasks(): void {
+    this.activeTab = 'all';
+    this.filterStatus = 'all';
+    this.filterOverdue = true;
+    this.applyFilters();
+  }
+
+  showCompletedTasks(): void {
+    this.activeTab = 'completed';
+    this.filterStatus = 'all';
+    this.filterOverdue = false;
     this.applyFilters();
   }
 
@@ -163,6 +207,8 @@ export class AdminDashboardComponent implements OnInit {
     this.showDetailModal = false;
     this.editingUser = null;
     this.userForm.reset({ role: 'user' });
+    this.userForm.get('password')?.setValidators([Validators.required, Validators.minLength(6)]);
+    this.userForm.get('password')?.updateValueAndValidity();
     this.showUserModal = true;
     this.cdr.detectChanges();
   }
@@ -176,6 +222,8 @@ export class AdminDashboardComponent implements OnInit {
       email: user.email,
       role: user.role
     });
+    this.userForm.get('password')?.clearValidators();
+    this.userForm.get('password')?.updateValueAndValidity();
     this.showUserModal = true;
     this.cdr.detectChanges();
   }
@@ -229,9 +277,10 @@ export class AdminDashboardComponent implements OnInit {
   saveUser(): void {
     if (this.userForm.invalid || this.isUserSubmitting) return;
     this.isUserSubmitting = true;
-    const userData = this.userForm.value;
+    const userData = { ...this.userForm.value };
 
     if (this.editingUser) {
+      delete userData.password;
       this.userService.updateUser(this.editingUser._id!, userData).subscribe({
         next: () => {
           this.toastr.success('User updated');
@@ -344,6 +393,7 @@ export class AdminDashboardComponent implements OnInit {
   viewEmployeeTasks(user: User): void {
     this.selectedUser = user;
     this.applyFilters();
+    this.activeMainTab = 'tasks';
   }
 
   clearUserFilter(): void {

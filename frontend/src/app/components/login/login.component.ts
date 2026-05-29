@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, Validators, FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -29,7 +29,8 @@ export class LoginComponent implements OnInit {
     private authService: AuthService,
     private router: Router,
     private route: ActivatedRoute,
-    private toastr: ToastrService
+    private toastr: ToastrService,
+    private cdr: ChangeDetectorRef
   ) {
     this.loginForm = this.fb.group({
       email: ['', [Validators.required, Validators.email]],
@@ -99,14 +100,19 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
-    this.authService.login(this.loginForm.value).subscribe({
-      next: (response) => {
+    this.cdr.detectChanges();
+
+    this.authService.login(this.loginForm.value).pipe(
+      finalize(() => {
         this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (response) => {
         this.toastr.success('Login successful!');
         this.redirectBasedOnRole();
       },
       error: (error) => {
-        this.loading = false;
         console.error('Login error:', error);
         const errMsg = error.error?.message || 'Login failed. Please check your credentials.';
         this.toastr.error(errMsg, 'Login Error');
@@ -127,16 +133,21 @@ export class LoginComponent implements OnInit {
     }
 
     this.loading = true;
+    this.cdr.detectChanges();
+
     const { confirmPassword, ...registerData } = this.registerForm.value;
     
-    this.authService.register(registerData).subscribe({
-      next: (response) => {
+    this.authService.register(registerData).pipe(
+      finalize(() => {
         this.loading = false;
+        this.cdr.detectChanges();
+      })
+    ).subscribe({
+      next: (response) => {
         this.toastr.success('Registration successful!');
         this.redirectBasedOnRole();
       },
       error: (error) => {
-        this.loading = false;
         console.error('Registration error:', error);
         const errMsg = error.error?.message || 'Registration failed.';
         this.toastr.error(errMsg, 'Registration Error');
@@ -151,17 +162,20 @@ export class LoginComponent implements OnInit {
     // Avoid redundant navigation if already at target
     if (this.router.url === targetRoute) {
       this.loading = false;
+      this.cdr.detectChanges();
       return;
     }
 
     console.log(`Redirecting to ${targetRoute} (isAdmin: ${isAdmin})`);
     this.router.navigate([targetRoute]).then(success => {
       this.loading = false;
+      this.cdr.detectChanges();
       if (!success) {
         this.toastr.error('Navigation to dashboard failed.', 'Navigation Error');
       }
     }).catch(err => {
       this.loading = false;
+      this.cdr.detectChanges();
       this.toastr.error('Navigation error occurred.', 'Navigation Error');
       console.error('Navigation error:', err);
     });

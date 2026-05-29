@@ -1,4 +1,4 @@
-import { Injectable } from '@angular/core';
+import { Injectable, Injector } from '@angular/core';
 import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http';
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
@@ -11,8 +11,12 @@ export class AuthInterceptor implements HttpInterceptor {
   constructor(
     private authService: AuthService,
     private router: Router,
-    private toastr: ToastrService
+    private injector: Injector
   ) {}
+
+  private get toastr(): ToastrService {
+    return this.injector.get(ToastrService);
+  }
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const token = this.authService.getToken();
@@ -51,7 +55,15 @@ export class AuthInterceptor implements HttpInterceptor {
           }
         }
         
-        this.toastr.error(errorMessage, 'Error');
+        // Don't show global toast for login and register requests, as those components handle presenting their own specific errors
+        if (!req.url.includes('/api/auth/login') && !req.url.includes('/api/auth/register')) {
+          try {
+            this.toastr.error(errorMessage, 'Error');
+          } catch (toastrError) {
+            console.error('Toastr notification failed:', toastrError);
+          }
+        }
+        
         return throwError(() => error);
       })
     );

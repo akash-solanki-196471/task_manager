@@ -9,6 +9,7 @@
 }
 
 .login-card-glass {
+  position: relative;
   background: rgba(255, 255, 255, 0.88);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
@@ -106,8 +107,17 @@
 }
 
 .loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
   background: rgba(255, 255, 255, 0.8) !important;
   backdrop-filter: blur(8px);
+  z-index: 100;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 /* Premium Form Validation Styling */
